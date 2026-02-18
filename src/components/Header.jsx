@@ -1,20 +1,37 @@
 import React from 'react';
 import styles from '../pages/styles/Header.module.scss';
 
-export default function Header({ active }) {
+export default function Header({ active, onNavigate }) {
   const [open, setOpen] = React.useState(false);
+
+  const handleNavigate = (page) => {
+    onNavigate(page);
+    setOpen(false);
+  };
 
   return (
     <header className={styles.headerContainer}>
       {/* DESKTOP HEADER */}
       <nav className={styles.desktop}>
-        <a href="#" className={active === 'home' ? styles.active : ''}>
+        <a
+          href="#"
+          className={active === 'home' ? styles.active : ''}
+          onClick={(e) => { e.preventDefault(); handleNavigate('home'); }}
+        >
           Filme principal
         </a>
-        <a href="#" className={active === 'capitulos' ? styles.active : ''}>
+        <a
+          href="#"
+          className={active === 'capitulos' ? styles.active : ''}
+          onClick={(e) => { e.preventDefault(); handleNavigate('capitulos'); }}
+        >
           Capítulos
         </a>
-        <a href="#" className={active === 'extras' ? styles.active : ''}>
+        <a
+          href="#"
+          className={active === 'extras' ? styles.active : ''}
+          onClick={(e) => { e.preventDefault(); handleNavigate('extras'); }}
+        >
           Extras
         </a>
       </nav>
@@ -31,9 +48,9 @@ export default function Header({ active }) {
 
         {open && (
           <nav className={styles.mobileMenu}>
-            <a href="#" onClick={() => setOpen(false)}>Filme principal</a>
-            <a href="#" onClick={() => setOpen(false)}>Capítulos</a>
-            <a href="#" onClick={() => setOpen(false)}>Extras</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleNavigate('home'); }}>Filme principal</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleNavigate('capitulos'); }}>Capítulos</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); handleNavigate('extras'); }}>Extras</a>
           </nav>
         )}
       </div>
