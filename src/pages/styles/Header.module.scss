@@ -1,0 +1,83 @@
+/* ===== DESKTOP ===== */
+.headerContainer {
+    width: 100%;
+}
+
+.desktop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1.5rem 2rem;
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+}
+
+.desktop a {
+    color: white;
+    text-decoration: none;
+    opacity: 0.7;
+    font-size: 1.1rem;
+    transition: opacity 0.3s, transform 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+    &:hover {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+}
+
+.active {
+    opacity: 1 !important;
+    font-weight: bold;
+    border-bottom: 2px solid white;
+}
+
+/* ===== MOBILE ===== */
+.mobile {
+    display: none;
+}
+
+.hamburger {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 20;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    color: white;
+}
+
+.mobileMenu {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+    z-index: 15;
+}
+
+.mobileMenu a {
+    color: white;
+    font-size: 1.5rem;
+    text-decoration: none;
+}
+
+/* ===== BREAKPOINT ===== */
+@media (max-width: 768px) {
+    .desktop {
+        display: none;
+    }
+
+    .mobile {
+        display: block;
+    }
+}
