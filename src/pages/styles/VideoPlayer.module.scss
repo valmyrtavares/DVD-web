@@ -1,0 +1,114 @@
+.videoOverlay {
+    position: fixed;
+    inset: 0;
+    background: black;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeBtn {
+    position: absolute;
+    top: 2rem;
+    right: 2rem;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 1010;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+
+    &:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+}
+
+.videoContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    iframe {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        aspect-ratio: 16 / 9;
+    }
+}
+
+.rotateHint {
+    display: none;
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 1rem 2rem;
+    border-radius: 30px;
+    color: white;
+    text-align: center;
+    pointer-events: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    animation: fadeIn 0.5s ease;
+
+    .phoneIcon {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        animation: rotatePhone 2s infinite ease-in-out;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translate(-50%, 20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes rotatePhone {
+
+    0%,
+    100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(90deg);
+    }
+}
+
+/* Mobile Portrait */
+@media (max-width: 900px) and (orientation: portrait) {
+    .videoContainer {
+        height: auto;
+        aspect-ratio: 16 / 9;
+        width: 100vw;
+    }
+
+    .rotateHint {
+        display: block;
+    }
+}
+
+/* Mobile Landscape ou telas grandes */
+@media (orientation: landscape) {
+    .videoContainer {
+        width: 100vw;
+        height: 100vh;
+    }
+}

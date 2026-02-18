@@ -1,37 +1,35 @@
 const eventConfig = {
   titulo: 'Janaina & Carlos',
-  subtitulo: 'Enlace Matrimonial • 12/10/2025',
+  subtitulo: 'Casamento • 12/10/2025',
 
   senha: '1234',
 
   backgrounds: {
-    home: '/assets/bg-home.jpg',
-    capitulos: '/assets/bg-capitulos.jpg',
-    extras: '/assets/bg-capitulos.jpg',
-    login: '/assets/bg-home.jpg',
+    home: '/assets/principal.jpg',
+    capitulos: '/assets/principal.jpg',
+    extras: '/assets/Extra-bg.jpg',
+    login: '/assets/principal.jpg',
   },
 
   filmePrincipal: {
-    provider: 'youtube',
-    url: 'https://www.youtube.com/embed/VIDEO_ID',
+    provider: 'vimeo',
+    url: 'https://player.vimeo.com/video/224409192?badge=0&autopause=0&player_id=0&app_id=58479',
   },
 
   capitulos: [
-    { label: 'Making Of', start: 30 },
-    { label: 'Cerimônia', start: 420 },
-    { label: 'Festa', start: 1800 },
+    { label: 'Making Of', start: 0 },
+    { label: 'Cerimônia', start: 87 },
+    { label: 'Festa', start: 345 },
   ],
 
   extras: [
     {
       label: 'Entrevistas',
-      provider: 'vimeo',
-      url: 'https://player.vimeo.com/video/VIDEO_ID',
+      url: 'https://player.vimeo.com/video/224409192?badge=0&autopause=0&player_id=0&app_id=58479',
     },
     {
       label: 'Trailer',
-      provider: 'youtube',
-      url: 'https://www.youtube.com/embed/VIDEO_ID',
+      url: 'https://player.vimeo.com/video/224409192?badge=0&autopause=0&player_id=0&app_id=58479',
     },
   ],
 };
