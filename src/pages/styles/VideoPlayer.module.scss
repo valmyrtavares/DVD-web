@@ -37,12 +37,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    background: black;
 
     iframe {
         width: 100%;
         height: 100%;
-        max-height: 100vh;
-        aspect-ratio: 16 / 9;
+        border: none;
     }
 }
 
@@ -59,24 +59,12 @@
     text-align: center;
     pointer-events: none;
     border: 1px solid rgba(255, 255, 255, 0.2);
-    animation: fadeIn 0.5s ease;
+    z-index: 1020;
 
     .phoneIcon {
         font-size: 1.5rem;
         margin-bottom: 0.5rem;
         animation: rotatePhone 2s infinite ease-in-out;
-    }
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translate(-50%, 20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translate(-50%, 0);
     }
 }
 
@@ -92,12 +80,12 @@
     }
 }
 
-/* Mobile Portrait */
+/* Somente mostra o aviso em celulares (touch) e em modo retrato */
 @media (max-width: 900px) and (orientation: portrait) {
-    .videoContainer {
-        height: auto;
-        aspect-ratio: 16 / 9;
+    .videoContainer iframe {
         width: 100vw;
+        height: 56.25vw;
+        /* 16:9 ratio */
     }
 
     .rotateHint {
@@ -105,10 +93,14 @@
     }
 }
 
-/* Mobile Landscape ou telas grandes */
+/* Em modo paisagem, o vídeo deve ser full screen total */
 @media (orientation: landscape) {
-    .videoContainer {
+    .videoContainer iframe {
         width: 100vw;
         height: 100vh;
+    }
+
+    .rotateHint {
+        display: none !important;
     }
 }

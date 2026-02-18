@@ -13,7 +13,7 @@ const eventConfig = {
 
   filmePrincipal: {
     provider: 'vimeo',
-    url: 'https://player.vimeo.com/video/224409192?badge=0&autopause=0&player_id=0&app_id=58479',
+    url: "https://player.vimeo.com/video/170161896?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479",
   },
 
   capitulos: [
@@ -25,7 +25,7 @@ const eventConfig = {
   extras: [
     {
       label: 'Entrevistas',
-      url: 'https://player.vimeo.com/video/224409192?badge=0&autopause=0&player_id=0&app_id=58479',
+      url: "https://player.vimeo.com/video/170161896?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479",
     },
     {
       label: 'Trailer',
@@ -35,3 +35,5 @@ const eventConfig = {
 };
 
 export default eventConfig;
+
+
