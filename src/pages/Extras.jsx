@@ -1,18 +1,17 @@
 import React from 'react';
 import styles from './styles/Extras.module.scss';
-import eventConfig from '../config/eventConfig';
 
-export default function Extras({ onPlayExtra }) {
+export default function Extras({ onPlayExtra, config }) {
     return (
         <div
             className={styles.extrasPage}
-            style={{ backgroundImage: `url(${eventConfig.backgrounds.extras})` }}
+            style={{ backgroundImage: `url(${config.backgrounds.extras})` }}
         >
             <div className={styles.overlay}>
                 <h1>Extras</h1>
 
                 <div className={styles.extrasList}>
-                    {eventConfig.extras.map((extra, index) => (
+                    {config.extras.map((extra, index) => (
                         <button
                             key={index}
                             className={styles.extraLink}

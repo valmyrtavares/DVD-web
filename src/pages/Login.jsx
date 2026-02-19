@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import styles from './styles/Login.module.scss';
-import eventConfig from '../config/eventConfig';
 
-export default function Login({ onLogin }) {
+export default function Login({ onLogin, config }) {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (password === eventConfig.senha) {
+        if (password === config.senha) {
             onLogin(password);
         } else {
             setError('Palavra de passe não é bem essa. Tente de novo.');
@@ -18,10 +17,10 @@ export default function Login({ onLogin }) {
     return (
         <div
             className={styles.loginPage}
-            style={{ backgroundImage: `url(${eventConfig.backgrounds.login})` }}
+            style={{ backgroundImage: `url(${config.backgrounds.login})` }}
         >
             <div className={styles.loginBox}>
-                <h1>{eventConfig.titulo}</h1>
+                <h1>{config.titulo}</h1>
                 <p>Por favor, digite a palavra de passe para acessar o conteúdo.</p>
 
                 <form onSubmit={handleSubmit}>

@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from '../pages/styles/Header.module.scss';
 
-export default function Header({ active, onNavigate }) {
+export default function Header({ active, onNavigate, config }) {
   const [open, setOpen] = React.useState(false);
 
   const handleNavigate = (page) => {
