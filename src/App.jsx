@@ -5,7 +5,8 @@ import Extras from './pages/Extras.jsx';
 import Login from './pages/Login.jsx';
 import VideoPlayer from './pages/VideoPlayer.jsx';
 import Header from './components/Header.jsx';
-import eventsMock from './config/eventsMock';
+import { db } from './config/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import './App.css';
 
 function App() {
@@ -16,29 +17,46 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 1. Identifica o slug da URL (ex: /janaina-e-carlos)
-    const path = window.location.pathname;
-    const slug = path.split('/')[1] || ''; // Garante que não é undefined
+    async function loadEventConfig() {
+      // 1. Identifica o slug da URL (ex: /janaina-e-carlos)
+      const path = window.location.pathname;
+      const slug = path.split('/')[1] || '';
 
-    console.log('Detectado slug:', slug);
+      console.log('Detectado slug:', slug);
 
-    // 2. Busca no Mock
-    const eventData = eventsMock[slug.toLowerCase()] || eventsMock[slug];
-
-    if (eventData) {
-      console.log('Evento encontrado:', eventData.titulo);
-      setConfig(eventData);
-
-      // 3. Verifica se já existe uma senha salva para ESTE evento
-      const storedAuth = localStorage.getItem(`dvd_auth_${eventData.titulo}`);
-      if (storedAuth === eventData.senha) {
-        setIsAuthenticated(true);
+      if (!slug) {
+        setLoading(false);
+        return;
       }
-    } else {
-      console.log('Nenhum evento correspondente ao slug:', slug);
+
+      try {
+        // 2. Busca no Cloud Firestore
+        // O slug deve ser EXATAMENTE o ID do documento no Firestore
+        const docRef = doc(db, "eventos", slug.toLowerCase());
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const eventData = docSnap.data();
+          console.log('Evento encontrado no Firestore:', eventData.titulo);
+
+          setConfig(eventData);
+
+          // 3. Verifica se já existe uma senha salva para ESTE evento
+          const storedAuth = localStorage.getItem(`dvd_auth_${eventData.titulo}`);
+          if (storedAuth === eventData.senha) {
+            setIsAuthenticated(true);
+          }
+        } else {
+          console.log('Nenhum evento no Firestore com ID:', slug.toLowerCase());
+        }
+      } catch (error) {
+        console.error("Erro ao buscar evento no Firestore:", error);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    setLoading(false);
+    loadEventConfig();
   }, []);
 
   const handleLogin = (password) => {
@@ -66,9 +84,7 @@ function App() {
         <h1>Página não encontrada</h1>
         <p>O link do evento está incorreto ou não existe.</p>
         <div style={{ marginTop: '20px', background: 'rgba(255,255,255,0.1)', padding: '15px' }}>
-          <p>Tente usar um destes exemplos para testar:</p>
-          <code style={{ display: 'block', margin: '10px 0' }}>/janaina-e-carlos</code>
-          <code style={{ display: 'block', margin: '10px 0' }}>/ana-e-rafael</code>
+          <p>Tente usar o link exato que foi fornecido.</p>
         </div>
       </div>
     );
