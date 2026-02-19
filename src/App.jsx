@@ -5,6 +5,7 @@ import Extras from './pages/Extras.jsx';
 import Login from './pages/Login.jsx';
 import VideoPlayer from './pages/VideoPlayer.jsx';
 import Header from './components/Header.jsx';
+import Admin from './pages/Admin.jsx';
 import { db } from './config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import './App.css';
@@ -15,23 +16,30 @@ function App() {
   const [playingVideoUrl, setPlayingVideoUrl] = useState(null);
   const [config, setConfig] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     async function loadEventConfig() {
-      // 1. Identifica o slug da URL (ex: /janaina-e-carlos)
       const path = window.location.pathname;
       const slug = path.split('/')[1] || '';
 
       console.log('Detectado slug:', slug);
 
+      // Se for a rota admin, paramos o carregamento de evento normal
+      if (slug.toLowerCase() === 'admin') {
+        setIsAdmin(true);
+        setLoading(false);
+        return;
+      }
+
+      // Se não houver slug (URL raiz), podemos mostrar uma landing page ou erro
       if (!slug) {
+        console.log('Nenhum slug fornecido na URL raiz.');
         setLoading(false);
         return;
       }
 
       try {
-        // 2. Busca no Cloud Firestore
-        // O slug deve ser EXATAMENTE o ID do documento no Firestore
         const docRef = doc(db, "eventos", slug.toLowerCase());
         const docSnap = await getDoc(docRef);
 
@@ -41,7 +49,6 @@ function App() {
 
           setConfig(eventData);
 
-          // 3. Verifica se já existe uma senha salva para ESTE evento
           const storedAuth = localStorage.getItem(`dvd_auth_${eventData.titulo}`);
           if (storedAuth === eventData.senha) {
             setIsAuthenticated(true);
@@ -71,20 +78,26 @@ function App() {
 
   if (loading) {
     return (
-      <div className="loading-screen">
-        <p>Carregando DVD Digital...</p>
+      <div className="loading-screen" style={{ color: 'white', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#000' }}>
+        <p>Carregando...</p>
       </div>
     );
   }
 
-  // Se não encontrou configuração, mostra erro amigável
+  // ROTA ADMIN
+  if (isAdmin) {
+    return <Admin />;
+  }
+
+  // URL Raiz ou Evento não encontrado
   if (!config) {
     return (
-      <div className="error-container" style={{ padding: '50px', textAlign: 'center', color: 'white' }}>
-        <h1>Página não encontrada</h1>
-        <p>O link do evento está incorreto ou não existe.</p>
-        <div style={{ marginTop: '20px', background: 'rgba(255,255,255,0.1)', padding: '15px' }}>
-          <p>Tente usar o link exato que foi fornecido.</p>
+      <div className="landing-container" style={{ padding: '100px 20px', textAlign: 'center', color: 'white', background: '#000', height: '100vh' }}>
+        <h1 style={{ fontSize: '3rem', marginBottom: '20px' }}>DVD Digital</h1>
+        <p style={{ fontSize: '1.2rem', opacity: 0.8 }}>Transformando seus eventos em experiências eternas.</p>
+        <div style={{ marginTop: '40px', padding: '20px', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', display: 'inline-block' }}>
+          <p>Para acessar seu conteúdo, utilize o link enviado pelo seu estúdio.</p>
+          <a href="/admin" style={{ color: '#aaa', fontSize: '0.8rem', marginTop: '20px', display: 'block', textDecoration: 'none' }}>Gerenciar Eventos</a>
         </div>
       </div>
     );
