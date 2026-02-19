@@ -122,6 +122,8 @@ export default function Admin() {
 }
 
 function AdminForm({ event, onClose, onSave }) {
+    const isEditing = !!event && !event._isClone;
+
     const [formData, setFormData] = useState(event || {
         titulo: '',
         subtitulo: '',
@@ -135,13 +137,16 @@ function AdminForm({ event, onClose, onSave }) {
     const [newSlug, setNewSlug] = useState(
         event?._isClone ? `${event._oldId}-copia` : (event?.id || '')
     );
-    const [uploading, setUploading] = useState(false);
+
+    // Estados de loading individuais para cada upload
+    const [uploadingMap, setUploadingMap] = useState({});
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!newSlug) return alert('O link (slug) é obrigatório');
 
         const cleanSlug = newSlug.toLowerCase().trim().replace(/\s+/g, '-');
+        const oldSlug = event?.id;
 
         try {
             // Remove campos auxiliares antes de salvar
@@ -150,9 +155,21 @@ function AdminForm({ event, onClose, onSave }) {
             delete dataToSave._oldId;
             delete dataToSave.id;
 
-            await setDoc(doc(db, "eventos", cleanSlug), dataToSave);
+            // Se o slug mudou e estávamos editando, precisamos apagar o antigo
+            if (isEditing && oldSlug !== cleanSlug) {
+                if (window.confirm(`Você está alterando o link de "/${oldSlug}" para "/${cleanSlug}". O link antigo deixará de funcionar. Confirmar?`)) {
+                    await setDoc(doc(db, "eventos", cleanSlug), dataToSave);
+                    await deleteDoc(doc(db, "eventos", oldSlug));
+                } else {
+                    return; // Cancela a operação
+                }
+            } else {
+                await setDoc(doc(db, "eventos", cleanSlug), dataToSave);
+            }
+
             onSave();
         } catch (error) {
+            console.error("Erro ao salvar:", error);
             alert('Erro ao salvar: ' + error.message);
         }
     };
@@ -161,28 +178,43 @@ function AdminForm({ event, onClose, onSave }) {
         const file = e.target.files[0];
         if (!file) return;
 
-        setUploading(true);
+        console.log(`[Upload] Iniciando processo para: ${path}`, file.name);
+        setUploadingMap(prev => ({ ...prev, [path]: true }));
+
         try {
-            const storageRef = ref(storage, `backgrounds/${newSlug}/${file.name}`);
-            await uploadBytes(storageRef, file);
-            const url = await getDownloadURL(storageRef);
+            const slugPath = newSlug || 'temp';
+            console.log(`[Upload] Bucket Path: backgrounds/${slugPath}/${file.name}`);
+
+            const storageRef = ref(storage, `backgrounds/${slugPath}/${file.name}`);
+
+            console.log(`[Upload] Enviando bytes...`);
+            const snapshot = await uploadBytes(storageRef, file);
+
+            console.log(`[Upload] Bytes enviados! Gerando URL de download...`);
+            const url = await getDownloadURL(snapshot.ref);
+
+            console.log("[Upload] Sucesso total! URL:", url);
 
             setFormData(prev => ({
                 ...prev,
-                backgrounds: { ...prev.backgrounds, [path]: url }
+                backgrounds: {
+                    ...prev.backgrounds,
+                    [path]: url
+                }
             }));
         } catch (error) {
-            console.error("Erro no upload:", error);
-            alert('Erro ao subir imagem');
+            console.error("[Upload] ERRO DETALHADO:", error);
+            alert(`Erro ao subir imagem: ${error.message}\n\n⚠️ Verifique se o 'Storage' foi ativado no Console do Firebase e se as Regras estão em 'Modo de Teste'.`);
         } finally {
-            setUploading(false);
+            console.log(`[Upload] Finalizando estado de carregamento para: ${path}`);
+            setUploadingMap(prev => ({ ...prev, [path]: false }));
         }
     };
 
     return (
         <div className={styles.modalOverlay}>
             <div className={styles.modalContent}>
-                <h2>{event ? 'Editar Evento' : 'Novo Evento'}</h2>
+                <h2>{isEditing ? 'Editar Evento' : (event?._isClone ? 'Clonar Evento' : 'Novo Evento')}</h2>
                 <form onSubmit={handleSubmit}>
                     <div className={styles.formGroup}>
                         <label>Link do site (slug):</label>
@@ -190,9 +222,11 @@ function AdminForm({ event, onClose, onSave }) {
                             type="text"
                             value={newSlug}
                             onChange={(e) => setNewSlug(e.target.value)}
-                            disabled={!!event && !event._isClone}
                             placeholder="ex: joao-e-maria"
                         />
+                        <small style={{ color: '#888', marginTop: '4px' }}>
+                            Dica: Este é o final do link. Ex: vercel.app/<strong>{newSlug || 'casal'}</strong>
+                        </small>
                     </div>
 
                     <div className={styles.formGrid}>
@@ -225,13 +259,34 @@ function AdminForm({ event, onClose, onSave }) {
                         </div>
                     </div>
 
-                    <h3>Imagens de Fundo</h3>
+                    <h3>Imagens de Fundo (Upload ou Link Direto)</h3>
                     <div className={styles.imageUploads}>
                         {['home', 'login', 'capitulos', 'extras'].map(bg => (
                             <div key={bg} className={styles.uploadBox}>
-                                <label>{bg.toUpperCase()}:</label>
-                                <input type="file" onChange={e => handleFileUpload(e, bg)} />
-                                {formData.backgrounds[bg] && <span className={styles.success}>✓ Carregada</span>}
+                                <label>{bg.toUpperCase()}</label>
+
+                                {/* Opção de Upload */}
+                                <input type="file" onChange={e => handleFileUpload(e, bg)} accept="image/*" />
+
+                                {/* Opção de Link Direto (Fallback) */}
+                                <input
+                                    type="text"
+                                    placeholder="Ou cole o link da imagem aqui..."
+                                    value={formData.backgrounds[bg] || ''}
+                                    onChange={e => setFormData({
+                                        ...formData,
+                                        backgrounds: { ...formData.backgrounds, [bg]: e.target.value }
+                                    })}
+                                    className={styles.urlInput}
+                                />
+
+                                {uploadingMap[bg] && <div className={styles.miniLoader}>Enviando...</div>}
+                                {formData.backgrounds[bg] && !uploadingMap[bg] && (
+                                    <div className={styles.uploadSuccess}>
+                                        <span className={styles.check}>✓</span>
+                                        <a href={formData.backgrounds[bg]} target="_blank" rel="noreferrer">Ver Foto</a>
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -250,7 +305,7 @@ function AdminForm({ event, onClose, onSave }) {
                                     newCaps[index].start = parseInt(e.target.value);
                                     setFormData({ ...formData, capitulos: newCaps });
                                 }} />
-                                <button type="button" onClick={() => {
+                                <button type="button" className={styles.removeBtn} onClick={() => {
                                     const newCaps = formData.capitulos.filter((_, i) => i !== index);
                                     setFormData({ ...formData, capitulos: newCaps });
                                 }}>X</button>
@@ -275,7 +330,7 @@ function AdminForm({ event, onClose, onSave }) {
                                     newExtras[index].url = e.target.value;
                                     setFormData({ ...formData, extras: newExtras });
                                 }} />
-                                <button type="button" onClick={() => {
+                                <button type="button" className={styles.removeBtn} onClick={() => {
                                     const newExtras = formData.extras.filter((_, i) => i !== index);
                                     setFormData({ ...formData, extras: newExtras });
                                 }}>X</button>
@@ -286,10 +341,8 @@ function AdminForm({ event, onClose, onSave }) {
                         </button>
                     </div>
 
-                    {uploading && <p className={styles.loadingMsg}>Subindo imagem...</p>}
-
                     <div className={styles.formActions}>
-                        <button type="button" onClick={onClose}>Cancelar</button>
+                        <button type="button" onClick={onClose} className={styles.cancelBtn}>Cancelar</button>
                         <button type="submit" className={styles.saveBtn}>Salvar Evento</button>
                     </div>
                 </form>
