@@ -15,17 +15,83 @@
     align-items: center;
     text-align: center;
     color: white;
-    background: rgba(0, 0, 0, 0.35);
-    padding: 1rem;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 2rem;
+    cursor: pointer;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
 }
 
 h1 {
-    font-size: 2.5rem;
+    font-size: 3rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 h2 {
-    font-size: 1.2rem;
-    margin-top: 0.5rem;
+    font-size: 1.4rem;
+    font-weight: 300;
+    opacity: 0.9;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.playButton {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.playIcon {
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    padding: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+
+    path {
+        filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+    }
+}
+
+.playText {
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    opacity: 0.8;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
+
+    50% {
+        transform: scale(1.08);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0.9;
+    }
 }
 
 .clickableTitle {
@@ -33,17 +99,33 @@ h2 {
     transition: transform 0.3s;
 
     &:hover {
-        transform: scale(1.05);
+        transform: scale(1.03);
     }
 }
 
 /* Mobile */
 @media (max-width: 768px) {
     h1 {
-        font-size: 1.8rem;
+        font-size: 2.2rem;
     }
 
     h2 {
         font-size: 1rem;
+        letter-spacing: 3px;
+    }
+
+    .playIcon {
+        width: 45px;
+        height: 45px;
+        padding: 0.8rem;
+    }
+
+    .playButton {
+        margin-top: 1.2rem;
+    }
+
+    .playText {
+        font-size: 0.75rem;
+        letter-spacing: 1px;
     }
 }

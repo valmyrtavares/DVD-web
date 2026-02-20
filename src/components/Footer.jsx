@@ -11,7 +11,7 @@ export default function Footer({ config }) {
         if (!num) return '';
         const clean = num.replace(/\D/g, '');
         if (clean.length === 11) {
-            return `(${clean.slice(0, 2)}) ${clean.slice(2, 3)}-${clean.slice(3, 7)}-${clean.slice(7)}`;
+            return `(${clean.slice(0, 2)}) ${clean.slice(2, 7)}-${clean.slice(7)}`;
         }
         return num; // Se for diferente de 11 dígitos, retorna como está
     };
