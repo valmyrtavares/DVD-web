@@ -5,6 +5,7 @@ import Extras from './pages/Extras.jsx';
 import Login from './pages/Login.jsx';
 import VideoPlayer from './pages/VideoPlayer.jsx';
 import Header from './components/Header.jsx';
+import Footer from './components/Footer.jsx';
 import Admin from './pages/Admin.jsx';
 import { db } from './config/firebase';
 import { doc, getDoc } from 'firebase/firestore';
@@ -132,6 +133,8 @@ function App() {
       />
 
       {renderPage()}
+
+      {!playingVideoUrl && <Footer config={config} />}
 
       {playingVideoUrl && (
         <VideoPlayer

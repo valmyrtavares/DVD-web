@@ -131,7 +131,11 @@ function AdminForm({ event, onClose, onSave }) {
         backgrounds: { home: '', login: '', capitulos: '', extras: '' },
         filmePrincipal: { url: '', provider: 'vimeo' },
         capitulos: [],
-        extras: []
+        extras: [],
+        phone: '',
+        companyUrl: '',
+        companyName: '',
+        instagramUrl: ''
     });
 
     const [newSlug, setNewSlug] = useState(
@@ -241,6 +245,46 @@ function AdminForm({ event, onClose, onSave }) {
                         <div className={styles.formGroup}>
                             <label>Senha de Acesso:</label>
                             <input type="text" value={formData.senha} onChange={e => setFormData({ ...formData, senha: e.target.value })} required />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Telefone de Contato:</label>
+                            <input
+                                type="text"
+                                value={formData.phone || ''}
+                                onChange={e => {
+                                    const val = e.target.value.replace(/\D/g, '').slice(0, 11);
+                                    setFormData({ ...formData, phone: val });
+                                }}
+                                placeholder="(11) 9-9999-9999"
+                                maxLength={11}
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Site da Empresa (URL):</label>
+                            <input
+                                type="text"
+                                value={formData.companyUrl || ''}
+                                onChange={e => setFormData({ ...formData, companyUrl: e.target.value })}
+                                placeholder="https://suaempresa.com"
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Nome da Empresa (no Footer):</label>
+                            <input
+                                type="text"
+                                value={formData.companyName || ''}
+                                onChange={e => setFormData({ ...formData, companyName: e.target.value })}
+                                placeholder="Nome Fantasia"
+                            />
+                        </div>
+                        <div className={styles.formGroup}>
+                            <label>Instagram da Empresa (Link):</label>
+                            <input
+                                type="text"
+                                value={formData.instagramUrl || ''}
+                                onChange={e => setFormData({ ...formData, instagramUrl: e.target.value })}
+                                placeholder="https://instagram.com/suaempresa"
+                            />
                         </div>
                     </div>
 
