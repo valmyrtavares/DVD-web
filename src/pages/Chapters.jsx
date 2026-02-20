@@ -22,8 +22,10 @@ export default function Chapters({ onPlayChapter, config }) {
                             className={styles.chapterBtn}
                             onClick={() => handleChapterClick(cap.start)}
                         >
-                            <span className={styles.number}>{index + 1}</span>
-                            <span className={styles.label}>{cap.label}</span>
+                            <div className={styles.btnContent}>
+                                <span className={styles.number}>{index + 1}</span>
+                                <span className={styles.label}>{cap.label}</span>
+                            </div>
                         </button>
                     ))}
                 </div>
