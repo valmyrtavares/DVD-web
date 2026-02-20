@@ -374,13 +374,21 @@ function AdminForm({ event, onClose, onSave }) {
                                     newExtras[index].url = e.target.value;
                                     setFormData({ ...formData, extras: newExtras });
                                 }} />
+                                <select value={ext.provider || 'vimeo'} onChange={e => {
+                                    const newExtras = [...formData.extras];
+                                    newExtras[index].provider = e.target.value;
+                                    setFormData({ ...formData, extras: newExtras });
+                                }}>
+                                    <option value="vimeo">Vimeo</option>
+                                    <option value="youtube">YouTube</option>
+                                </select>
                                 <button type="button" className={styles.removeBtn} onClick={() => {
                                     const newExtras = formData.extras.filter((_, i) => i !== index);
                                     setFormData({ ...formData, extras: newExtras });
                                 }}>X</button>
                             </div>
                         ))}
-                        <button type="button" className={styles.addBtn} onClick={() => setFormData({ ...formData, extras: [...formData.extras, { label: '', url: '' }] })}>
+                        <button type="button" className={styles.addBtn} onClick={() => setFormData({ ...formData, extras: [...formData.extras, { label: '', url: '', provider: 'vimeo' }] })}>
                             + Adicionar Extra
                         </button>
                     </div>
