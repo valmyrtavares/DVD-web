@@ -17,10 +17,16 @@ export default function Login({ onLogin, config }) {
     return (
         <div
             className={styles.loginPage}
-            style={{ backgroundImage: `url(${config.backgrounds.login})` }}
+            style={{ backgroundImage: `url(${config.backgrounds?.login})` }}
         >
             <div className={styles.loginBox}>
-                <h1>{config.titulo}</h1>
+                <div className={styles.logoContainer}>
+                    <img
+                        src={config.backgrounds?.login}
+                        alt="Company Logo"
+                        className={styles.logoImg}
+                    />
+                </div>
                 <p>Por favor, digite a palavra de passe para acessar o conteúdo.</p>
 
                 <form onSubmit={handleSubmit}>
