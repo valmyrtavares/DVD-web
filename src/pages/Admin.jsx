@@ -299,6 +299,8 @@ function AdminForm({ event, onClose, onSave }) {
                             <select value={formData.filmePrincipal.provider} onChange={e => setFormData({ ...formData, filmePrincipal: { ...formData.filmePrincipal, provider: e.target.value } })}>
                                 <option value="vimeo">Vimeo</option>
                                 <option value="youtube">YouTube</option>
+                                <option value="google-drive">Google Drive</option>
+                                <option value="direct">Arquivo/Link Direto (.mp4)</option>
                             </select>
                         </div>
                     </div>
@@ -381,6 +383,8 @@ function AdminForm({ event, onClose, onSave }) {
                                 }}>
                                     <option value="vimeo">Vimeo</option>
                                     <option value="youtube">YouTube</option>
+                                    <option value="google-drive">Google Drive</option>
+                                    <option value="direct">Arquivo/Link Direto (.mp4)</option>
                                 </select>
                                 <button type="button" className={styles.removeBtn} onClick={() => {
                                     const newExtras = formData.extras.filter((_, i) => i !== index);

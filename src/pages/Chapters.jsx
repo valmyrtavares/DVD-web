@@ -3,8 +3,16 @@ import styles from './styles/Chapters.module.scss';
 
 export default function Chapters({ onPlayChapter, config }) {
     const handleChapterClick = (start) => {
-        // Para o Vimeo, o timestamp é adicionado como #t=30s
-        const chapterUrl = `${config.filmePrincipal.url}#t=${start}s`;
+        // Para Vimeo usamos #t=Xs, para YouTube o VideoPlayer já converte para start=X
+        // Para o player nativo (MP4), usaremos #t=X
+        let chapterUrl = config.filmePrincipal.url;
+
+        if (chapterUrl.includes('vimeo.com')) {
+            chapterUrl = `${chapterUrl}#t=${start}s`;
+        } else {
+            chapterUrl = `${chapterUrl}#t=${start}`;
+        }
+
         onPlayChapter(chapterUrl);
     };
 
