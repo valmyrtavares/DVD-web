@@ -85,7 +85,9 @@ export default function Admin() {
                             <div className={styles.cardInfo}>
                                 <h3>{event.titulo}</h3>
                                 <p>{event.subtitulo}</p>
-                                <code>/{event.id}</code>
+                                <a href={`/${event.id}`} className={styles.slugLink} target="_blank" rel="noreferrer">
+                                    <code>/{event.id}</code>
+                                </a>
                             </div>
                             <div className={styles.cardActions}>
                                 <button onClick={() => { setEditingEvent(event); setIsFormOpen(true); }}>Editar</button>
