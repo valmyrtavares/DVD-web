@@ -14,7 +14,7 @@ export default function VideoPlayer({ videoUrl, onClose }) {
             url.endsWith('.mov');
     };
 
-    const getEmbedUrl = (url) => {
+    const getFinalUrl = (url) => {
         if (!url) return '';
 
         const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
@@ -25,8 +25,7 @@ export default function VideoPlayer({ videoUrl, onClose }) {
 
         if (isYouTube) {
             const separator = finalUrl.includes('?') ? '&' : '?';
-            // Adicionando mute=1 muitas vezes ajuda no autoplay em navegadores modernos
-            finalUrl = `${finalUrl}${separator}autoplay=1&rel=0&playsinline=1`;
+            finalUrl = `${finalUrl}${separator}autoplay=1&rel=0&playsinline=1&mute=0`;
 
             if (finalUrl.includes('#t=')) {
                 const seconds = finalUrl.split('#t=')[1].replace('s', '');
@@ -39,16 +38,8 @@ export default function VideoPlayer({ videoUrl, onClose }) {
                 const separator = finalUrl.includes('?') ? '&' : '?';
                 finalUrl = `${finalUrl}${separator}autoplay=1&playsinline=1`;
             }
-        } else if (isGoogleDrive && !isDirectVideo(url)) {
-            // Tentar usar o link de 'Download Direto' para abrir no player nativo se possível
-            // Isso costuma funcionar melhor para autoplay e capítulos
-            if (url.includes('/file/d/')) {
-                const fileId = url.split('/file/d/')[1].split('/')[0];
-                // Se o arquivo for pequeno (<100MB), o link 'uc' funciona direto como vídeo
-                // url = `https://drive.google.com/uc?export=download&id=${fileId}`;
-            }
-
-            // Fallback para preview se não for arquivo direto
+        } else if (isGoogleDrive) {
+            // Reverter para o preview estável do Google Drive
             if (url.includes('/view')) {
                 finalUrl = url.replace('/view', '/preview');
             } else if (url.includes('/file/d/')) {
@@ -96,7 +87,7 @@ export default function VideoPlayer({ videoUrl, onClose }) {
                 {isDirectVideo(videoUrl) ? (
                     <video
                         ref={videoRef}
-                        src={videoUrl.replace('drive.google.com/file/d/', 'drive.google.com/uc?export=download&id=').split('/view')[0]}
+                        src={getFinalUrl(videoUrl)}
                         controls
                         autoPlay
                         playsInline
@@ -106,7 +97,7 @@ export default function VideoPlayer({ videoUrl, onClose }) {
                     />
                 ) : (
                     <iframe
-                        src={getEmbedUrl(videoUrl)}
+                        src={getFinalUrl(videoUrl)}
                         frameBorder="0"
                         allow="autoplay; fullscreen; picture-in-picture"
                         allowFullScreen
