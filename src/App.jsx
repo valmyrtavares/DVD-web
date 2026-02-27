@@ -138,6 +138,7 @@ function App() {
 
       {playingVideoUrl && (
         <VideoPlayer
+          key="global-video-player"
           videoUrl={playingVideoUrl}
           onClose={() => setPlayingVideoUrl(null)}
         />

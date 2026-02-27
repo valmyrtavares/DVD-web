@@ -17,29 +17,46 @@ export default function VideoPlayer({ videoUrl, onClose }) {
     const getFinalUrl = (url) => {
         if (!url) return '';
 
+        let finalUrl = url;
         const isYouTube = url.includes('youtube.com') || url.includes('youtu.be');
         const isVimeo = url.includes('vimeo.com');
         const isGoogleDrive = url.includes('drive.google.com');
 
-        let finalUrl = url;
-
         if (isYouTube) {
-            const separator = finalUrl.includes('?') ? '&' : '?';
-            finalUrl = `${finalUrl}${separator}autoplay=1&rel=0&playsinline=1&mute=0`;
+            let videoId = '';
+            if (url.includes('v=')) {
+                videoId = url.split('v=')[1].split('&')[0];
+            } else if (url.includes('youtu.be/')) {
+                videoId = url.split('youtu.be/')[1].split(/[?#]/)[0];
+            } else if (url.includes('/embed/')) {
+                videoId = url.split('/embed/')[1].split(/[?#]/)[0];
+            }
 
-            if (finalUrl.includes('#t=')) {
-                const seconds = finalUrl.split('#t=')[1].replace('s', '');
-                finalUrl = finalUrl.split('#t=')[0].replace(/[?&]start=\d+/, '') + `${finalUrl.includes('?') ? '&' : '?'}start=${seconds}`;
+            if (videoId) {
+                finalUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&enablejsapi=1`;
+                if (url.includes('#t=') || url.includes('&t=')) {
+                    const timeMatch = url.match(/[#&]t=(\d+)/);
+                    if (timeMatch) finalUrl += `&start=${timeMatch[1]}`;
+                }
             }
         } else if (isVimeo) {
-            if (finalUrl.includes('#')) {
-                finalUrl = finalUrl.replace('#', `?autoplay=1&playsinline=1#`);
-            } else {
-                const separator = finalUrl.includes('?') ? '&' : '?';
-                finalUrl = `${finalUrl}${separator}autoplay=1&playsinline=1`;
+            let videoId = '';
+            const vimeoRegex = /(?:vimeo\.com\/)(?:channels\/[^\/]+\/|groups\/[^\/]+\/album\/[^\/]+\/video\/|video\/|)(\d+)(?:$|\/|\?)/;
+            const match = url.match(vimeoRegex);
+            if (match) {
+                videoId = match[1];
+            } else if (url.includes('/video/')) {
+                videoId = url.split('/video/')[1].split(/[?#]/)[0];
+            }
+
+            if (videoId) {
+                finalUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=0&autopause=0&playsinline=1`;
+                if (url.includes('#t=')) {
+                    const time = url.split('#t=')[1];
+                    finalUrl += `#t=${time}`;
+                }
             }
         } else if (isGoogleDrive) {
-            // Reverter para o preview estável do Google Drive
             if (url.includes('/view')) {
                 finalUrl = url.replace('/view', '/preview');
             } else if (url.includes('/file/d/')) {
@@ -53,27 +70,47 @@ export default function VideoPlayer({ videoUrl, onClose }) {
 
     const handleVideoPlay = () => {
         if (videoRef.current) {
-            videoRef.current.play().catch(e => {
-                console.log("Autoplay block detected, trying muted...", e);
-                if (videoRef.current) {
-                    videoRef.current.muted = true;
-                    videoRef.current.play();
-                }
-            });
+            const playPromise = videoRef.current.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.log("Autoplay block detected, trying muted...", e);
+                    if (videoRef.current) {
+                        videoRef.current.muted = true;
+                        videoRef.current.play();
+                    }
+                });
+            }
         }
     };
 
     useEffect(() => {
         if (isDirectVideo(videoUrl) && videoRef.current) {
+            const videoElement = videoRef.current;
+
+            // Forçar reload do vídeo para trocar de fonte corretamente sem remount
+            videoElement.load();
+
             // Configurar timestamp
             if (videoUrl.includes('#t=')) {
                 const timeStr = videoUrl.split('#t=')[1].replace('s', '');
                 const time = parseFloat(timeStr);
-                if (!isNaN(time)) {
-                    videoRef.current.currentTime = time;
+
+                const onMetadataLoaded = () => {
+                    if (!isNaN(time)) {
+                        videoElement.currentTime = time;
+                    }
+                    handleVideoPlay();
+                    videoElement.removeEventListener('loadedmetadata', onMetadataLoaded);
+                };
+
+                if (videoElement.readyState >= 1) { // HAVE_METADATA
+                    onMetadataLoaded();
+                } else {
+                    videoElement.addEventListener('loadedmetadata', onMetadataLoaded);
                 }
+            } else {
+                handleVideoPlay();
             }
-            handleVideoPlay();
         }
     }, [videoUrl]);
 
@@ -87,19 +124,17 @@ export default function VideoPlayer({ videoUrl, onClose }) {
                 {isDirectVideo(videoUrl) ? (
                     <video
                         ref={videoRef}
-                        src={getFinalUrl(videoUrl)}
+                        src={videoUrl.split('#t=')[0]} // Usar a URL pura para o src
                         controls
                         autoPlay
                         playsInline
                         className={styles.directVideo}
-                        onCanPlay={handleVideoPlay}
-                        onLoadedData={handleVideoPlay}
                     />
                 ) : (
                     <iframe
                         src={getFinalUrl(videoUrl)}
                         frameBorder="0"
-                        allow="autoplay; fullscreen; picture-in-picture"
+                        allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope;"
                         allowFullScreen
                         title="Vídeo"
                     ></iframe>
