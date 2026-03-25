@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage } from '../config/firebase';
+import { db, storage, auth } from '../config/firebase';
 import { collection, getDocs, doc, setDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
 import styles from './styles/Admin.module.scss';
 
 export default function Admin() {
@@ -9,11 +10,24 @@ export default function Admin() {
     const [loading, setLoading] = useState(true);
     const [editingEvent, setEditingEvent] = useState(null);
     const [isFormOpen, setIsFormOpen] = useState(false);
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [isAdminAuth, setIsAdminAuth] = useState(false);
+    const [authLoading, setAuthLoading] = useState(true);
 
-    // Senha mestre simples para a área admin (depois você pode mudar)
-    const MASTER_PASSWORD = 'admin';
+    useEffect(() => {
+        // Monitora o estado de autenticação real do Firebase
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setIsAdminAuth(true);
+            } else {
+                setIsAdminAuth(false);
+            }
+            setAuthLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         if (isAdminAuth) {
@@ -38,26 +52,48 @@ export default function Admin() {
         }
     };
 
-    const handleAdminLogin = (e) => {
+    const handleAdminLogin = async (e) => {
         e.preventDefault();
-        if (password === MASTER_PASSWORD) {
-            setIsAdminAuth(true);
-        } else {
-            alert('Senha incorreta');
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            // O onAuthStateChanged vai cuidar de setar o isAdminAuth como true
+        } catch (error) {
+            console.error("Erro no login:", error);
+            alert('Falha na autenticação: ' + error.message);
         }
     };
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Erro ao sair:", error);
+        }
+    };
+
+    if (authLoading) {
+        return <div className={styles.adminLogin}><p style={{ color: 'white' }}>Verificando autenticação...</p></div>;
+    }
 
     if (!isAdminAuth) {
         return (
             <div className={styles.adminLogin}>
                 <div className={styles.loginBox}>
-                    <h1>Área Administrativa</h1>
+                    <h1>Acesso Admin</h1>
                     <form onSubmit={handleAdminLogin}>
                         <input
+                            type="email"
+                            placeholder="Email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            required
+                        />
+                        <input
                             type="password"
-                            placeholder="Senha Mestre"
+                            placeholder="Senha"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
                         <button type="submit">Entrar</button>
                     </form>
@@ -70,7 +106,12 @@ export default function Admin() {
     return (
         <div className={styles.adminContainer}>
             <header className={styles.header}>
-                <h1>Meus DVDs Digitais</h1>
+                <div>
+                    <h1>Meus DVDs Digitais</h1>
+                    <button onClick={handleLogout} className={styles.logoutBtn} style={{ background: '#333', color: '#fff', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer', fontSize: '0.8rem', marginTop: '5px' }}>
+                        Sair
+                    </button>
+                </div>
                 <button className={styles.newBtn} onClick={() => { setEditingEvent(null); setIsFormOpen(true); }}>
                     + Novo Evento
                 </button>
