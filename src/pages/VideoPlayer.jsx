@@ -34,7 +34,7 @@ export default function VideoPlayer({ videoUrl, onClose }) {
             }
 
             if (videoId) {
-                finalUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&enablejsapi=1`;
+                finalUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&muted=1&rel=0&playsinline=1&enablejsapi=1`;
                 if (url.includes('#t=') || url.includes('&t=')) {
                     const timeMatch = url.match(/[#&]t=(\d+)/);
                     if (timeMatch) finalUrl += `&start=${timeMatch[1]}`;
@@ -51,7 +51,7 @@ export default function VideoPlayer({ videoUrl, onClose }) {
             }
 
             if (videoId) {
-                finalUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=0&autopause=0&playsinline=1`;
+                finalUrl = `https://player.vimeo.com/video/${videoId}?autoplay=1&muted=1&autopause=0&playsinline=1&dnt=1&quality=auto`;
                 if (url.includes('#t=')) {
                     const time = url.split('#t=')[1];
                     finalUrl += `#t=${time}`;
